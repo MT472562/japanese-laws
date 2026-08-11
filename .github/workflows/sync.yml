@@ -1,0 +1,38 @@
+name: e-Gov法令同期
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 18 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-egov-laws
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: テスト
+        run: python -m unittest discover -s tests -v
+      - name: 現行法令を同期
+        run: python scripts/sync_laws.py --workers 4
+      - name: 変更をコミット
+        run: |
+          if git diff --quiet; then
+            echo "法令の変更はありません"
+            exit 0
+          fi
+          git config user.name "e-Gov Laws Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add laws INDEX.md manifest.json
+          git commit -m "法令データを更新 $(date -u +%Y-%m-%d)"
+          git push
