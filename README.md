@@ -2,6 +2,8 @@
 
 e-Gov法令API Version 2を正本として、日本の現行法令を法令ごとのMarkdownに変換し、Gitの差分として追跡するためのリポジトリです。
 
+検索ページ: [日本法令検索](https://mt472562.github.io/japanese-laws/)
+
 > [!IMPORTANT]
 > このリポジトリは閲覧・差分確認用の複製です。法的な確認には必ず[e-Gov法令検索](https://laws.e-gov.go.jp/)の原文を利用してください。
 
