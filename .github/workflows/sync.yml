@@ -24,7 +24,7 @@ jobs:
       - name: テスト
         run: python -m unittest discover -s tests -v
       - name: 現行法令を同期
-        run: python scripts/sync_laws.py --workers 4
+        run: python scripts/sync_laws.py --full
       - name: 変更をコミット
         run: |
           if git diff --quiet; then

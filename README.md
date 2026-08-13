@@ -7,23 +7,21 @@ e-Gov法令API Version 2を正本として、日本の現行法令を法令ご�
 
 ## 仕組み
 
-- 初回はe-Gov公式の全法令一括ZIPを1回だけ取得
-- 2回目以降は公式の「更新法令データ」を未処理日ごとに1回取得
-- 更新ZIP内で `law_revision_id` が変わった法令だけ反映
+- e-Gov公式の全法令一括ZIPを取得し、毎回の現行スナップショットを再構築
 - 法令ごとに `laws/<法令種別>/<法令ID>.md` として保存
 - 現行一覧から消えた法令のファイルを削除（廃止をGit差分で表現）
 - `INDEX.md` と `manifest.json` を決定的に再生成
 - GitHub Actionsで毎日自動同期し、変更がある日だけコミット
 
-## 初回同期
+## ローカル同期
 
 Python 3.11以降だけで動作し、外部パッケージは不要です。
 
 ```bash
-python scripts/sync_laws.py --workers 4
+python scripts/sync_laws.py --full
 ```
 
-初回は約316MB（サイズは更新により変動）の公式一括ZIPを1回取得し、ローカルで約9,000件のMarkdownへ変換します。法令ごとの個別取得は行いません。途中で失敗した場合、既存の法令ファイルとマニフェストは更新されません。再実行してください。
+約316MB（サイズは更新により変動）の公式一括ZIPを1回取得し、ローカルで約9,000件のMarkdownへ変換します。法令ごとの個別取得は行いません。途中で失敗した場合、既存の法令ファイルとマニフェストは更新されません。再実行してください。
 
 少数で動作確認する場合：
 
@@ -41,9 +39,9 @@ python scripts/sync_laws.py --bulk-archive all_xml.zip
 
 ## 自動更新
 
-`.github/workflows/sync.yml` は毎日03:17 JST（18:17 UTC）に実行されます。通常は前日分の公式更新ZIPを1リクエストだけ取得し、法令ごとのAPIアクセスは行いません。GitHub側で Actions の `Read and write permissions` が許可されていれば、変更を自動コミットします。手動実行にも対応しています。
+`.github/workflows/sync.yml` は毎日03:17 JST（18:17 UTC）に公式の全法令ZIPを取得し、現行スナップショットを再構築します。法令ごとのAPIアクセスは行いません。GitHub側で Actions の `Read and write permissions` が許可されていれば、変更を自動コミットします。手動実行にも対応しています。
 
-90日を超えて同期できなかった場合や全件を照合し直す場合：
+全件を照合し直す場合：
 
 ```bash
 python scripts/sync_laws.py --full
